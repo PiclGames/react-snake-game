@@ -11,19 +11,29 @@ export enum Direction {
     Right = 'right'
 }
 
-const SnakeGame = () => {
-    const [gameState, setGameState] = useState({
-        snake: {
-            members: config.baseSnakeMembers,
-            direction: config.baseDirection,
-        },
-        food: config.baseFood
-    });
+const initialGameState = {
+    isRunning: true,
+    isLost: false,
+    score: 0,
+    snake: {
+        members: config.baseSnakeMembers,
+        direction: config.baseDirection,
+    },
+    food: config.baseFood
+}
 
+const SnakeGame = () => {
+    const [gameState, setGameState] = useState(initialGameState);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            switch (e.key) {
+            switch (e.code) {
+                case 'Space':
+                    setGameState(initialGameState);
+                    break;
+                case 'KeyP':
+                    setGameState(state => ({...state, isRunning: !state.isRunning}));
+                    break;
                 case 'ArrowUp':
                     setGameState(state => ({
                         ...state,
@@ -70,6 +80,7 @@ const SnakeGame = () => {
 
     /* game main loop */
     useEffect(() => {
+        if(!gameState.isRunning || gameState.isLost) return;
         const interval = setInterval(() => {
             const newSnakeMembers = [...gameState.snake.members];
             const newHead = {...newSnakeMembers[0]};
@@ -92,19 +103,47 @@ const SnakeGame = () => {
             newSnakeMembers.unshift(newHead);
             newSnakeMembers.pop();
 
-            setGameState({
-                ...gameState,
+            /* check if snake is colliding with borders */
+            if (newHead.x < 0 || newHead.x >= config.boardWidth || newHead.y < 0 || newHead.y >= config.boardHeight) {
+                setGameState(state => ({...state, isLost: true}));
+                return;
+            }
+
+            /* check if snake is colliding with itself */
+            if (newSnakeMembers.some((member, index) => index !== 0 && member.x === newHead.x && member.y === newHead.y)) {
+                setGameState(state => ({...state, isLost: true}));
+                return;
+            }
+
+            /* check if snake is colliding with food */
+            if (newHead.x === gameState.food.x && newHead.y === gameState.food.y) {
+                newSnakeMembers.push({...newSnakeMembers[newSnakeMembers.length - 1]});
+                setGameState(state => ({
+                    ...state,
+                    food: {
+                        x: Math.floor(Math.random() * config.boardWidth),
+                        y: Math.floor(Math.random() * config.boardHeight)
+                    },
+                    score: state.score + 1
+                }));
+            }
+
+            setGameState(state => ({
+                ...state,
                 snake: {
-                    ...gameState.snake,
+                    ...state.snake,
                     members: newSnakeMembers
                 }
-            });
+            }));
         }, config.gameSpeed);
         return () => clearInterval(interval);
     });
 
     return (<>
             <h1 className={"text-center text-4xl font-bold"}>Snake Game</h1>
+            {gameState.isLost && <h2 className={"text-center text-2xl font-bold"}>You lost!</h2>}
+            {!gameState.isRunning && <h2 className={"text-center text-2xl font-bold"}>Game paused!</h2>}
+            <h2 className={"text-center text-2xl font-bold"}>Score: {gameState.score}</h2>
             <SnakeGrid height={config.boardHeight} width={config.boardWidth}>
                 <Snake members={gameState.snake.members}/>
                 <Food x={gameState.food.x} y={gameState.food.y}/>
