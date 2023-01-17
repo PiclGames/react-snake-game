@@ -1,0 +1,25 @@
+{
+  "baseSnakeMembers": [
+    {
+      "x": 0,
+      "y": 0
+    },
+    {
+      "x": 1,
+      "y": 0
+    },
+    {
+      "x": 2,
+      "y": 0
+    }
+  ],
+  "baseDirection": "right",
+  "baseFood": {
+    "x": 10,
+    "y": 10
+  },
+  "boardHeight": 40,
+  "boardWidth": 40,
+  "cellSize": 20,
+  "gameSpeed": 50
+}
