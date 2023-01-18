@@ -1,5 +1,6 @@
 import React from "react"
 import config from "../config.json";
+import {RoundedBox} from "@react-three/drei";
 
 interface SnakeMember {
     x: number
@@ -11,20 +12,12 @@ export interface SnakeProps {
 }
 
 export default function Snake(props: SnakeProps) {
-    return (
-        <div>
-        {props.members.map((member: SnakeMember, index: number) => (
-            <div
-                className="absolute bg-blue-700 border-black border"
-            key={index}
-            style={{
-                width: config.cellSize,
-                height: config.cellSize,
-                top: member.y * config.cellSize,
-                left: member.x * config.cellSize,
-            }}
-            />
-        ))}
-        </div>
+    return (<>
+            {props.members.map((member: SnakeMember, index: number) => (
+                <RoundedBox args={[1, 1, 1]} radius={0.1} position={[member.x, member.y, 1.5]} key={`${member.x}-${member.y}`}>
+                    <meshStandardMaterial color={index === 0 ? "blue" : "darkblue"}/>
+                </RoundedBox>
+            ))}
+    </>
     )
 }
