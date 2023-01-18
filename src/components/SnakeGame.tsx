@@ -17,8 +17,8 @@ const initialGameState = {
     score: 0,
     snake: {
         members: config.baseSnakeMembers,
-        direction: config.baseDirection,
     },
+    direction: config.baseDirection,
     food: config.baseFood
 }
 
@@ -27,49 +27,22 @@ const SnakeGame = () => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            switch (e.code) {
-                case 'Space':
-                    setGameState(initialGameState);
-                    break;
-                case 'KeyP':
-                    setGameState(state => ({...state, isRunning: !state.isRunning}));
-                    break;
-                case 'ArrowUp':
-                    setGameState(state => ({
-                        ...state,
-                        snake: {
-                            ...state.snake,
-                            direction: Direction.Up
-                        }
-                    }));
-                    break;
-                case 'ArrowDown':
-                    setGameState(state => ({
-                        ...state,
-                        snake: {
-                            ...state.snake,
-                            direction: Direction.Down
-                        }
-                    }));
-                    break;
-                case 'ArrowLeft':
-                    setGameState(state => ({
-                        ...state,
-                        snake: {
-                            ...state.snake,
-                            direction: Direction.Left
-                        }
-                    }));
-                    break;
-                case 'ArrowRight':
-                    setGameState(state => ({
-                        ...state,
-                        snake: {
-                            ...state.snake,
-                            direction: Direction.Right
-                        }
-                    }));
-                    break;
+            console.log(e.code, gameState.direction);
+            if(e.code === 'ArrowUp') {
+                setGameState(state => ({...state, direction: state.direction !== Direction.Down ? Direction.Up : state.direction}));
+            } else if(e.code === 'ArrowDown') {
+                setGameState(state => ({...state, direction: state.direction !== Direction.Up ? Direction.Down : state.direction}));
+            } else if(e.code === 'ArrowLeft') {
+                setGameState(state => ({...state, direction: state.direction !== Direction.Right ? Direction.Left : state.direction}));
+            } else if(e.code === 'ArrowRight') {
+                setGameState(state => ({...state, direction: state.direction !== Direction.Left ? Direction.Right : state.direction}));
+            }
+
+            if(e.code === 'Space') {
+                setGameState(initialGameState);
+            }
+            if(e.code === 'KeyP') {
+                setGameState(state => ({...state, isRunning: !state.isRunning}));
             }
         }
         document.addEventListener('keydown', handleKeyDown);
@@ -85,7 +58,8 @@ const SnakeGame = () => {
             const newSnakeMembers = [...gameState.snake.members];
             const newHead = {...newSnakeMembers[0]};
 
-            switch (gameState.snake.direction) {
+            console.log(gameState.direction);
+            switch (gameState.direction) {
                 case Direction.Up:
                     newHead.y -= 1;
                     break;
@@ -135,7 +109,7 @@ const SnakeGame = () => {
                     members: newSnakeMembers
                 }
             }));
-        }, config.gameSpeed);
+        }, 1000/config.tickPerSecond);
         return () => clearInterval(interval);
     });
 
